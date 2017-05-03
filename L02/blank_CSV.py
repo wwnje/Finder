@@ -3,7 +3,12 @@
 import codecs
 import csv
 import MySQLdb
+# import mysql.connector
 import _secret
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 host = _secret.host
 root = _secret.root
@@ -24,7 +29,6 @@ csv_finder_title = ['finder_id', 'name']
 csv_tags = "csv/blank_tags.csv"
 csv_tags_title = ['tags_id', 'tags_name']
 
-
 seed_data = []
 tags_data = []
 finder_data = []
@@ -33,7 +37,10 @@ finder_data = []
 def readDataBase():
 
     # 打开数据库连接
-    db = MySQLdb.connect(host, root, pwd, dataBase)
+    # db = mysql.connector.connect(host, root, pwd, dataBase)
+    # 中文
+    # db = MySQLdb.connect(host, root, pwd, dataBase)
+    db = MySQLdb.connect(user=root, db=dataBase, passwd=pwd, host=host, charset='utf8')
 
     # 使用cursor()方法获取操作游标
     cursor = db.cursor()
@@ -60,8 +67,10 @@ def readDataBase():
     # finder
     cursor.execute(sql_tags)
     results_tags = cursor.fetchall()
+
     for key in results_tags:
         tags_data.append((key[0], key[1]))
+        print key[1]
 
     # 关闭数据库连接
     db.close()
@@ -72,7 +81,6 @@ def createCSV():
     csvfile_seed = file(csv_finder_seed, 'wb')
     csvfile_seed.write(codecs.BOM_UTF8)
     writer_seed = csv.writer(csvfile_seed)
-    # writer_seed.writerow(csv_finder_seed_title)
 
     data = seed_data
     writer_seed.writerows(data)
@@ -82,7 +90,6 @@ def createCSV():
     csvfile_finder = file(csv_finder, 'wb')
     csvfile_finder.write(codecs.BOM_UTF8)
     writer_finder = csv.writer(csvfile_finder)
-    # writer_finder.writerow(csv_finder_title)
 
     data = finder_data
     writer_finder.writerows(data)
@@ -92,7 +99,6 @@ def createCSV():
     csvfile_tags = file(csv_tags, 'wb')
     csvfile_tags.write(codecs.BOM_UTF8)
     writer_tags = csv.writer(csvfile_tags)
-    # writer_tags.writerow(csv_tags_title)
 
     data = tags_data
     writer_tags.writerows(data)
@@ -122,7 +128,7 @@ def readCSV(filename):
             fields = line.split(',')
             finder_id = fields[0]
             finder_name = fields[1]
-            print "finder_id:" + finder_id
+            print "finder_id:" + str(finder_id)
             print "finder_name:" + finder_name
 
     elif(filename == csv_tags):
